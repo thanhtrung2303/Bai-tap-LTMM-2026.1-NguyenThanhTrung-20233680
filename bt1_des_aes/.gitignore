@@ -1,0 +1,6 @@
+# File thuc thi
+*.exe
+
+# File object
+*.o
+*.obj

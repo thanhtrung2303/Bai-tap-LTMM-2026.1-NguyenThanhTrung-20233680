@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
-
-
+#include <stdlib.h>
 
 // Bang SBOX
 uint8_t SBOX[256] = {
@@ -26,7 +25,7 @@ uint8_t nhan_x(uint8_t a)
 }
 
 // Nhan 2 ptu trong GF(2^8)
-char nhan_gf(char a, char b)
+uint8_t nhan_gf(uint8_t a, uint8_t b)
 {
     uint8_t kq = 0;
     for (int i = 0; i < 8; i++) {
@@ -93,6 +92,11 @@ void aes(const char *ban_ro_hex, const char *khoa_hex)
         for (int hang = 0; hang < 4; hang++)
             for (int cot = 0; cot < 4; cot++)
                 trang_thai[hang][cot] = SBOX[trang_thai[hang][cot]];
+        if (vong == 1) {
+            printf("SubBytes: ");
+            in_trang_thai(trang_thai);
+            printf("\n");
+        }
 
         // ShiftRows
         for (int hang = 1; hang < 4; hang++) {
@@ -100,6 +104,11 @@ void aes(const char *ban_ro_hex, const char *khoa_hex)
             for (int cot = 0; cot < 4; cot++)
                 tam[cot] = trang_thai[hang][(cot + hang) % 4];
             memcpy(trang_thai[hang], tam, 4);
+        }
+        if (vong == 1) {
+            printf("ShiftRows: ");
+            in_trang_thai(trang_thai);
+            printf("\n");
         }
 
         // MixColumns
@@ -113,12 +122,21 @@ void aes(const char *ban_ro_hex, const char *khoa_hex)
                 trang_thai[3][cot] = nhan_gf(3, a0) ^ a1 ^ a2 ^ nhan_gf(2, a3);
             }
         }
+        if (vong == 1 && vong < 10) {
+            printf("MixColumns: ");
+            in_trang_thai(trang_thai);
+            printf("\n");
+        }
 
         // AddRoundKey
         for (int cot = 0; cot < 4; cot++)
             for (int hang = 0; hang < 4; hang++)
                 trang_thai[hang][cot] ^= w[4 * vong + cot][hang];
-
+        if (vong == 1) {
+            printf("AddRoundKey: ");
+            in_trang_thai(trang_thai);
+            printf("\n");
+        }
         printf("vong %d K:", vong);
         for (int cot = 0; cot < 4; cot++)
             for (int hang = 0; hang < 4; hang++)
@@ -134,11 +152,7 @@ void aes(const char *ban_ro_hex, const char *khoa_hex)
 
 int main(void)
 {
-    printf("AES tren lop:\n");
+    printf("AES:\n");
     aes("0000000000000011", "0000000000000000");
-    printf("AES slide 42:\n");
-    aes("0123456789abcdeffedcba9876543210", "0f1571c947d9e8590cb7add6af7f6798");
-    printf("AES slide 38-40:\n");
-    aes("3243f6a8885a308d313198a2e0370734", "2b7e151628aed2a6abf7158809cf4f3c");
     return 0;
 }
